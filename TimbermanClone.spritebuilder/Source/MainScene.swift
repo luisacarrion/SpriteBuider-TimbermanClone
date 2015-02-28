@@ -139,8 +139,6 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     
     func removeBottomTreeSection() {
         var index = 0
-        //treeSections[index].removeFromParent()
-        //treeSections.removeAtIndex(index)
         
         // Move bottom section to the last position in the array and remove it's branches to reuse it as the new section at the top
         let reusedTreeSection = treeSections.removeAtIndex(index)
