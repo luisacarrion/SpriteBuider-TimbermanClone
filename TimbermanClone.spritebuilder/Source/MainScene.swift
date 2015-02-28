@@ -143,10 +143,8 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
             treeSection.position.y = treeBaseHeight + treeSectionHeight * CGFloat(index++)
         }
         
-        // If the tree doesn't fill the screen, add a new tree section at the top to replace the one that was removed
-        if isTreeSmallerThanScreen() {
-            addTreeSection()
-        }
+        // Add a new tree section to replace the one that was removed
+        addTreeSection()
     }
     
     func isTreeSmallerThanScreen() -> Bool {
