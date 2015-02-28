@@ -17,13 +17,25 @@ class TreeSection: CCNode {
         self.zOrder = DrawingOrder.DrawingOrderTree.rawValue
     }
     
-    func addBranch() {
-        let probability = arc4random() % 100
-        if probability < 50 {
+    func addBranch(probLeft: Double, probRight: Double, probNone: Double) -> Bool {
+        
+        let probability: Double = Double(arc4random() % 100) / 100
+        NSLog("probability: \(probability)")
+        
+        var branchAdded = false
+        
+        if probability < probLeft {
+            NSLog("left")
             addBranchAt(.Left)
-        } else {
+            branchAdded = true
+        } else if probability < probLeft + probRight {
+            NSLog("right")
             addBranchAt(.Right)
+            branchAdded = true
         }
+
+        NSLog("branchAdded: \(branchAdded)")
+        return branchAdded
     }
     
     func addBranchAt(side: Position) {

@@ -28,12 +28,13 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     var lblScore: CCLabelTTF!
     
     // Game variables
-    var collidedWithBranch: Bool = false
-    var ranOutOfTime: Bool = false
-    var userTouched: Bool = false
+    var lastTreeSectionHadBranch = false
+    var collidedWithBranch = false
+    var ranOutOfTime = false
+    var userTouched = false
     var score = 0
     var timer: Float = 5
-    let timerMaxTime:Float = 10
+    let timerMaxTime: Float = 10
     
     func didLoadFromCCB() {
         // Assign scene width and height
@@ -47,7 +48,7 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         moveCharacterTo(.Left)
         
         // Add tree sections until the tree fills the screen
-        while ((CGFloat(treeSections.count) * treeSectionHeight + treeBaseHeight) < mainSceneHeight) {
+        while isTreeSmallerThanScreen() {
             addTreeSection()
         }
         
@@ -85,7 +86,7 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
             updateTimerBar()
             
             if userTouched {
-                // Remove bottom tree section to simulating cutting the tree
+                // Remove bottom tree section to simulate cutting the tree
                 removeBottomTreeSection()
                 updateScore()
                 userTouched = false
@@ -103,6 +104,9 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         }
     }
     
+    /*
+    This function adds a tree section
+    */
     func addTreeSection() {
         let treeSection = CCBReader.load("TreeSection") as TreeSection
         
@@ -110,13 +114,39 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         treeSection.position.x = 0.5
         treeSection.position.y = treeBaseHeight + treeSectionHeight * CGFloat(treeSections.count)
 
-        // Add branches only if the first 2 sections without branches have been added
-        if treeSections.count >= 2 {
-            treeSection.addBranch()
-        }
-        
         physicsNode.addChild(treeSection)
         treeSections.append(treeSection)
+        
+        // Add branches only if 2 sections without branches have been added
+        if treeSections.count > 2 {
+            
+            // Define Probability of having a branch
+            var probLeft = 1.0/3.0
+            var probRight = 1.0/3.0
+            var probNone = 1.0/3.0
+            
+            // If the last piece did not have a branch then there should be 45% chance of left branch, 45% chance of right branch, and 10% chance of no branch
+            if !lastTreeSectionHadBranch {
+                probLeft = 0.45
+                probRight = 0.45
+                probNone = 0.10
+            }
+            
+            lastTreeSectionHadBranch = treeSection.addBranch(probLeft, probRight: probRight, probNone: probNone)
+            
+            // There should never be two tree pieces with branches in a row, so if the added section had a branch, we add a section with no branches
+            if lastTreeSectionHadBranch {
+                let treeSectionWithoutBranch = CCBReader.load("TreeSection") as TreeSection
+                
+                treeSectionWithoutBranch.positionType.xUnit = CCPositionUnit.Normalized
+                treeSectionWithoutBranch.position.x = 0.5
+                treeSectionWithoutBranch.position.y = treeBaseHeight + treeSectionHeight * CGFloat(treeSections.count)
+                
+                physicsNode.addChild(treeSectionWithoutBranch)
+                treeSections.append(treeSectionWithoutBranch)
+            }
+        }
+        
     }
     
     func removeBottomTreeSection() {
@@ -128,8 +158,15 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         for treeSection in treeSections {
             treeSection.position.y = treeBaseHeight + treeSectionHeight * CGFloat(index++)
         }
-        // Add new section at the top to replace the one that was removed
-        addTreeSection()
+        
+        // If the tree doesn't fill the screen, add a new tree section at the top to replace the one that was removed
+        if isTreeSmallerThanScreen() {
+            addTreeSection()
+        }
+    }
+    
+    func isTreeSmallerThanScreen() -> Bool {
+        return ((CGFloat(treeSections.count) * treeSectionHeight + treeBaseHeight) < mainSceneHeight)
     }
     
     func ccPhysicsCollisionBegin(pair: CCPhysicsCollisionPair!, character: CCNode!, branch: CCNode!) -> Bool {
@@ -138,9 +175,7 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     }
     
     func incrementTimer() {
-        NSLog("incrment timer: \(timer)")
         timer = clampf(timer + 0.25, 0, timerMaxTime)
-        NSLog("incrment timer: \(timer)")
     }
     
     func decrementTimerBy(amount: Float) {
