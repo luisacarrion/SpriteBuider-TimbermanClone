@@ -104,9 +104,6 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         }
     }
     
-    /*
-    This function adds a tree section
-    */
     func addTreeSection() {
         let treeSection = CCBReader.load("TreeSection") as TreeSection
         
@@ -117,36 +114,23 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         physicsNode.addChild(treeSection)
         treeSections.append(treeSection)
         
-        // Add branches only if 2 sections without branches have been added
+        // Add branches only if 2 section without branches have been added, so that the character doesn't collide with branches and has some space at the beginning
         if treeSections.count > 2 {
-            
-            // Define Probability of having a branch
-            var probLeft = 1.0/3.0
-            var probRight = 1.0/3.0
-            var probNone = 1.0/3.0
-            
             // If the last piece did not have a branch then there should be 45% chance of left branch, 45% chance of right branch, and 10% chance of no branch
-            if !lastTreeSectionHadBranch {
-                probLeft = 0.45
-                probRight = 0.45
-                probNone = 0.10
+            var probLeft = 0.45
+            var probRight = 0.45
+            var probNone = 0.10
+            
+            // There should never be two tree pieces with branches in a row, so if we just added a section with a branch, we add a section with no branches
+            if lastTreeSectionHadBranch {
+                probLeft = 0
+                probRight = 0
+                probNone = 1
             }
             
             lastTreeSectionHadBranch = treeSection.addBranch(probLeft, probRight: probRight, probNone: probNone)
             
-            // There should never be two tree pieces with branches in a row, so if the added section had a branch, we add a section with no branches
-            if lastTreeSectionHadBranch {
-                let treeSectionWithoutBranch = CCBReader.load("TreeSection") as TreeSection
-                
-                treeSectionWithoutBranch.positionType.xUnit = CCPositionUnit.Normalized
-                treeSectionWithoutBranch.position.x = 0.5
-                treeSectionWithoutBranch.position.y = treeBaseHeight + treeSectionHeight * CGFloat(treeSections.count)
-                
-                physicsNode.addChild(treeSectionWithoutBranch)
-                treeSections.append(treeSectionWithoutBranch)
-            }
         }
-        
     }
     
     func removeBottomTreeSection() {
