@@ -19,7 +19,6 @@ class TreeSection: CCNode {
     
     func addBranch() {
         let probability = arc4random() % 100
-        NSLog("probability: \(probability)")
         if probability < 50 {
             addBranchAt(.Left)
         } else {

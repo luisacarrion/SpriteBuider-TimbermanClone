@@ -21,6 +21,7 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     // CCNodes
     var physicsNode: CCPhysicsNode!
     var character: CCSprite!
+    var timerBar: CCSprite!
     var treeSections = [TreeSection]()
     
     var btnRestart: CCButton!
@@ -31,7 +32,9 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     var ranOutOfTime: Bool = false
     var userTouched: Bool = false
     var score = 0
-
+    var timer: Float = 5
+    let timerMaxTime:Float = 10
+    
     func didLoadFromCCB() {
         // Assign scene width and height
         mainSceneWidth = CCDirector.sharedDirector().viewSize().width
@@ -57,10 +60,12 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     }
     
     override func touchBegan(touch: CCTouch!, withEvent event: CCTouchEvent!) {
-        userTouched = true
-        
         // Process touches only if the game hasn't ended
         if !isGameOver() {
+            userTouched = true
+            
+            incrementTimer()
+        
             // Determine if touch was at left or right and move the character accordingly
             let touchLocation = touch.locationInNode(self)
             
@@ -76,6 +81,9 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         if isGameOver() {
             gameOver()
         } else {
+            decrementTimerBy(Float(delta))
+            updateTimerBar()
+            
             if userTouched {
                 // Remove bottom tree section to simulating cutting the tree
                 removeBottomTreeSection()
@@ -127,6 +135,23 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     func ccPhysicsCollisionBegin(pair: CCPhysicsCollisionPair!, character: CCNode!, branch: CCNode!) -> Bool {
         collidedWithBranch = true
         return true
+    }
+    
+    func incrementTimer() {
+        NSLog("incrment timer: \(timer)")
+        timer = clampf(timer + 0.25, 0, timerMaxTime)
+        NSLog("incrment timer: \(timer)")
+    }
+    
+    func decrementTimerBy(amount: Float) {
+        timer = clampf(timer - amount, 0, timerMaxTime)
+        if timer == 0 {
+            ranOutOfTime = true
+        }
+    }
+    
+    func updateTimerBar() {
+        timerBar.scaleX = timer / 10.0
     }
     
     func updateScore() {
