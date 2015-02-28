@@ -26,6 +26,11 @@ class TreeSection: CCNode {
     func addBranchAt(side: Position) {
         let branch = CCSprite.spriteWithImageNamed("assets/branch.png") as CCSprite
         branch.position.x = 2
+
+        branch.physicsBody = CCPhysicsBody(rect: CGRect(origin: ccp(0, 0), size: branch.contentSize), cornerRadius: CGFloat(0))
+        branch.physicsBody.type = CCPhysicsBodyType.Static
+        branch.physicsBody.collisionType = "branch"
+        branch.physicsBody.sensor = true
         
         if side == .Left {
             branch.flipX = true
