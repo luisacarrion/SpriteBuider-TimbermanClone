@@ -114,6 +114,10 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         physicsNode.addChild(treeSection)
         treeSections.append(treeSection)
         
+        addBranchesToTreeSection(treeSection)
+    }
+    
+    func addBranchesToTreeSection(treeSection: TreeSection) {
         // Add branches only if 2 section without branches have been added, so that the character doesn't collide with branches and has some space at the beginning
         if treeSections.count > 2 {
             // If the last piece did not have a branch then there should be 45% chance of left branch, 45% chance of right branch, and 10% chance of no branch
@@ -135,16 +139,21 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
     
     func removeBottomTreeSection() {
         var index = 0
-        treeSections[index].removeFromParent()
-        treeSections.removeAtIndex(index)
+        //treeSections[index].removeFromParent()
+        //treeSections.removeAtIndex(index)
         
-        // Move remaining tree sections down, so there is a new bottom tree section
+        // Move bottom section to the last position in the array and remove it's branches to reuse it as the new section at the top
+        let reusedTreeSection = treeSections.removeAtIndex(index)
+        treeSections.append(reusedTreeSection)
+        
+        // Move all tree sections down, so there is a new bottom tree section
         for treeSection in treeSections {
             treeSection.position.y = treeBaseHeight + treeSectionHeight * CGFloat(index++)
         }
         
-        // Add a new tree section to replace the one that was removed
-        addTreeSection()
+        // Add new branches to the reused tree section
+        reusedTreeSection.removeBranches()
+        addBranchesToTreeSection(reusedTreeSection)
     }
     
     func isTreeSmallerThanScreen() -> Bool {

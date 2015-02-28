@@ -14,6 +14,7 @@ class TreeSection: CCNode {
     var rightBranchContainer: CCNode!
     
     func didLoadFromCCB() {
+        NSLog("TreeSection loaded from ccb")
         self.zOrder = DrawingOrder.DrawingOrderTree.rawValue
     }
     
@@ -56,5 +57,10 @@ class TreeSection: CCNode {
             branch.anchorPoint = ccp(0, 0)
             rightBranchContainer.addChild(branch)
         }
+    }
+    
+    func removeBranches() {
+        leftBranchContainer.removeAllChildren()
+        rightBranchContainer.removeAllChildren()
     }
 }
