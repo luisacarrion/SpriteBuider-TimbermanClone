@@ -4,8 +4,8 @@ enum Position {
     case Left, Right
 }
 
-enum DrawingOrder {
-    case DrawingOrderCharacter, DrawingOrderTree
+enum DrawingOrder: Int {
+    case DrawingOrderTree, DrawingOrderCharacter
 }
 
 class MainScene: CCNode, CCPhysicsCollisionDelegate {
@@ -39,6 +39,7 @@ class MainScene: CCNode, CCPhysicsCollisionDelegate {
         
         // Load the character
         character = CCBReader.load("Character") as CCSprite
+        character.zOrder = DrawingOrder.DrawingOrderCharacter.rawValue
         physicsNode.addChild(character)
         moveCharacterTo(.Left)
         

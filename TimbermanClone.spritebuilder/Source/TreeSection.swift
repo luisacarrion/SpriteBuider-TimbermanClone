@@ -13,6 +13,10 @@ class TreeSection: CCNode {
     var leftBranchContainer: CCNode!
     var rightBranchContainer: CCNode!
     
+    func didLoadFromCCB() {
+        self.zOrder = DrawingOrder.DrawingOrderTree.rawValue
+    }
+    
     func addBranch() {
         let probability = arc4random() % 100
         NSLog("probability: \(probability)")
